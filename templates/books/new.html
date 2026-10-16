@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Nuovo libro{% endblock %}
+
+{% block content %}
+<a class="back" href="{{ url_for('books.list_books') }}"><i class="fa-solid fa-arrow-left"></i> Torna al catalogo</a>
+
+<section class="page-header">
+    <h1>Nuovo libro</h1>
+</section>
+
+<form class="card form" method="post">
+    <div class="form-grid">
+        <label>
+            Titolo *
+            <input type="text" name="title" value="{{ form.title or '' }}" maxlength="255" required>
+        </label>
+        <label>
+            Autore *
+            <input type="text" name="author" value="{{ form.author or '' }}" maxlength="150" required>
+        </label>
+        <label>
+            ISBN
+            <input type="text" name="isbn" value="{{ form.isbn or '' }}" maxlength="20" placeholder="es. 978-88-04-66829-0">
+        </label>
+        <label>
+            Anno di pubblicazione
+            <input type="number" name="publication_year" value="{{ form.publication_year or '' }}" min="0" max="2100">
+        </label>
+        <label>
+            Numero di copie
+            <input type="number" name="copies" value="{{ form.copies or 1 }}" min="0" max="50" required>
+        </label>
+        <label class="span-2">
+            URL immagine di copertina
+            <input type="url" name="cover_image" value="{{ form.cover_image or '' }}" maxlength="255"
+                   placeholder="https://…" data-cover-input>
+        </label>
+    </div>
+
+    <div class="cover cover-preview" hidden data-cover-preview>
+        <img alt="Anteprima copertina">
+    </div>
+
+    <div class="form-actions">
+        <a class="btn btn-ghost" href="{{ url_for('books.list_books') }}">Annulla</a>
+        <button class="btn" type="submit"><i class="fa-solid fa-floppy-disk"></i> Salva libro</button>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Nuovo prestito{% endblock %}
+
+{% block content %}
+<a class="back" href="{{ url_for('loans.list_loans') }}"><i class="fa-solid fa-arrow-left"></i> Torna ai prestiti</a>
+
+<section class="page-header">
+    <h1>Nuovo prestito</h1>
+</section>
+
+{% if not members or not copies %}
+    <div class="card empty">
+        {% if not members %}<p class="muted">Non ci sono soci iscritti.</p>{% endif %}
+        {% if not copies %}<p class="muted">Non ci sono copie disponibili al momento.</p>{% endif %}
+        <a class="btn" href="{{ url_for('members.list_members') if not members else url_for('books.list_books') }}">
+            {{ 'Iscrivi un socio' if not members else 'Vai al catalogo' }}
+        </a>
+    </div>
+{% else %}
+    <form class="card form" method="post">
+        <label>
+            Socio *
+            <input type="search" class="select-filter" placeholder="Filtra soci…" data-filter-for="member_id">
+            <select name="member_id" id="member_id" size="6" required>
+                {% for member in members %}
+                    <option value="{{ member.member_id }}" {{ 'selected' if form.member_id == member.member_id | string }}>
+                        {{ member.last_name }} {{ member.first_name }} — {{ member.email }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Copia disponibile *
+            <input type="search" class="select-filter" placeholder="Filtra libri…" data-filter-for="copy_id">
+            <select name="copy_id" id="copy_id" size="6" required>
+                {% for copy in copies %}
+                    <option value="{{ copy.copy_id }}" {{ 'selected' if form.copy_id == copy.copy_id | string }}>
+                        {{ copy.title }} — {{ copy.author }} (copia #{{ copy.copy_id }})
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Data di scadenza *
+            <input type="date" name="due_date" value="{{ form.due_date or default_due }}" min="{{ today }}" required>
+            <small class="muted">Durata standard: 30 giorni.</small>
+        </label>
+
+        <div class="form-actions">
+            <a class="btn btn-ghost" href="{{ url_for('loans.list_loans') }}">Annulla</a>
+            <button class="btn" type="submit"><i class="fa-solid fa-check"></i> Registra prestito</button>
+        </div>
+    </form>
+{% endif %}
+{% endblock %}

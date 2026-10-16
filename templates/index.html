@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="stats">
+    <div class="stat">
+        <i class="fa-solid fa-book stat-icon"></i>
+        <span class="stat-value">{{ stats.books }}</span>
+        <span class="stat-label">Libri in catalogo</span>
+    </div>
+    <div class="stat">
+        <i class="fa-solid fa-circle-check stat-icon"></i>
+        <span class="stat-value">{{ stats.available_copies }}</span>
+        <span class="stat-label">Copie disponibili</span>
+    </div>
+    <div class="stat">
+        <i class="fa-solid fa-users stat-icon"></i>
+        <span class="stat-value">{{ stats.members }}</span>
+        <span class="stat-label">Soci iscritti</span>
+    </div>
+    <div class="stat stat-wide">
+        <i class="fa-solid fa-right-left stat-icon"></i>
+        <span class="stat-value">{{ stats.active_loans }}</span>
+        <span class="stat-label">Prestiti attivi</span>
+    </div>
+    <div class="stat stat-wide {{ 'stat-danger' if stats.overdue_loans }}">
+        <i class="fa-solid fa-clock stat-icon"></i>
+        <span class="stat-value">{{ stats.overdue_loans }}</span>
+        <span class="stat-label">Prestiti scaduti</span>
+    </div>
+</section>
+{% endblock %}

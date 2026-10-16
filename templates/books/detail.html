@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<a class="back" href="{{ url_for('books.list_books') }}"><i class="fa-solid fa-arrow-left"></i> Torna al catalogo</a>
+
+<section class="book-detail card">
+    <div class="cover cover-large">
+        {% if book.cover_image %}
+            <img src="{{ book.cover_image }}" alt="Copertina di {{ book.title }}" data-cover>
+        {% endif %}
+        <span class="cover-fallback">{{ book.title[:1] }}</span>
+    </div>
+    <div>
+        <h1>{{ book.title }}</h1>
+        <p class="lead">{{ book.author }}</p>
+        <dl class="details">
+            <dt>Anno</dt><dd>{{ book.publication_year or '—' }}</dd>
+            <dt>ISBN</dt><dd>{{ book.isbn or '—' }}</dd>
+            <dt>Copie</dt><dd>{{ copies | length }}</dd>
+        </dl>
+    </div>
+</section>
+
+<section class="page-header">
+    <h2>Copie</h2>
+    <form method="post" action="{{ url_for('books.add_copy', book_id=book.book_id) }}">
+        <button class="btn btn-secondary" type="submit"><i class="fa-solid fa-plus"></i> Aggiungi copia</button>
+    </form>
+</section>
+
+{% if copies %}
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Copia</th>
+                    <th>Acquisita il</th>
+                    <th>Stato</th>
+                    <th>Prestito</th>
+                    <th class="actions">Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for copy in copies %}
+                    <tr>
+                        <td>#{{ copy.copy_id }}</td>
+                        <td>{{ copy.acquisition_date | date_it }}</td>
+                        <td><span class="badge badge-{{ copy.status }}">{{ copy.status | status_label }}</span></td>
+                        <td>
+                            {% if copy.loan_id %}
+                                {{ copy.first_name }} {{ copy.last_name }}
+                                <span class="muted {{ 'text-danger' if copy.due_date < today }}">· scade il {{ copy.due_date | date_it }}</span>
+                            {% else %}
+                                <span class="muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="actions">
+                            {% if copy.status == 'available' %}
+                                <a class="btn btn-small" href="{{ url_for('loans.new_loan', copy_id=copy.copy_id) }}">Presta</a>
+                                <form method="post" action="{{ url_for('books.withdraw_copy', copy_id=copy.copy_id) }}"
+                                      data-confirm="Ritirare la copia #{{ copy.copy_id }}? Non sarà più prestabile.">
+                                    <button class="btn btn-small btn-ghost" type="submit">Ritira</button>
+                                </form>
+                            {% elif copy.loan_id %}
+                                <form method="post" action="{{ url_for('loans.return_loan', loan_id=copy.loan_id) }}">
+                                    <button class="btn btn-small btn-secondary" type="submit"><i class="fa-solid fa-rotate-left"></i> Restituisci</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card empty"><p class="muted">Questo libro non ha ancora copie.</p></div>
+{% endif %}
+{% endblock %}

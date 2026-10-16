@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Soci{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1>Soci</h1>
+        <p class="muted">{{ members | length }} {{ 'socio' if members | length == 1 else 'soci' }}{% if search %} per “{{ search }}”{% endif %}</p>
+    </div>
+</section>
+
+<section class="grid-sidebar">
+    <div>
+        <form class="search" method="get">
+            <input type="search" name="q" value="{{ search }}" placeholder="Cerca per nome o email…" aria-label="Cerca">
+            <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Cerca</button>
+            {% if search %}<a class="btn btn-secondary" href="{{ url_for('members.list_members') }}">Azzera</a>{% endif %}
+        </form>
+
+        {% if members %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Iscritto il</th>
+                            <th>Prestiti attivi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                            <tr>
+                                <td><strong>{{ member.last_name }}</strong> {{ member.first_name }}</td>
+                                <td><a href="mailto:{{ member.email }}">{{ member.email }}</a></td>
+                                <td>{{ member.registration_date | date_it }}</td>
+                                <td>
+                                    {% if member.active_loans %}
+                                        <span class="badge badge-on_loan">{{ member.active_loans }}</span>
+                                    {% else %}
+                                        <span class="muted">0</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="card empty"><p class="muted">Nessun socio trovato.</p></div>
+        {% endif %}
+    </div>
+
+    <form class="card form" id="new-member" method="post">
+        <h2>Nuovo socio</h2>
+        <label>
+            Nome *
+            <input type="text" name="first_name" value="{{ form.first_name or '' }}" maxlength="100" required>
+        </label>
+        <label>
+            Cognome *
+            <input type="text" name="last_name" value="{{ form.last_name or '' }}" maxlength="100" required>
+        </label>
+        <label>
+            Email *
+            <input type="email" name="email" value="{{ form.email or '' }}" maxlength="255" required>
+        </label>
+        <button class="btn btn-block" type="submit"><i class="fa-solid fa-user-plus"></i> Iscrivi socio</button>
+    </form>
+</section>
+{% endblock %}

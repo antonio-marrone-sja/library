@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Prestiti{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>Prestiti</h1>
+    <a class="btn" href="{{ url_for('loans.new_loan') }}"><i class="fa-solid fa-plus"></i> Nuovo prestito</a>
+</section>
+
+<nav class="tabs">
+    {% for key, label in [('active', 'Attivi'), ('overdue', 'Scaduti'), ('returned', 'Restituiti'), ('all', 'Tutti')] %}
+        <a href="{{ url_for('loans.list_loans', filter=key) }}" class="{{ 'active' if current_filter == key }}">{{ label }}</a>
+    {% endfor %}
+</nav>
+
+{% if loans %}
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Libro</th>
+                    <th>Socio</th>
+                    <th>Dal</th>
+                    <th>Scadenza</th>
+                    <th>Stato</th>
+                    <th class="actions">Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loan in loans %}
+                    {% set overdue = loan.return_date is none and loan.due_date < today %}
+                    <tr class="{{ 'row-danger' if overdue }}">
+                        <td>
+                            <a href="{{ url_for('books.book_detail', book_id=loan.book_id) }}">{{ loan.title }}</a>
+                            <span class="muted">#{{ loan.copy_id }}</span>
+                        </td>
+                        <td>{{ loan.first_name }} {{ loan.last_name }}</td>
+                        <td>{{ loan.loan_date | date_it }}</td>
+                        <td>{{ loan.due_date | date_it }}</td>
+                        <td>
+                            {% if loan.return_date %}
+                                <span class="badge badge-available">Restituito il {{ loan.return_date | date_it }}</span>
+                            {% elif overdue %}
+                                <span class="badge badge-danger">Scaduto</span>
+                            {% else %}
+                                <span class="badge badge-on_loan">In corso</span>
+                            {% endif %}
+                        </td>
+                        <td class="actions">
+                            {% if not loan.return_date %}
+                                <form method="post" action="{{ url_for('loans.return_loan', loan_id=loan.loan_id) }}"
+                                      data-confirm="Confermi la restituzione di “{{ loan.title }}”?">
+                                    <button class="btn btn-small btn-secondary" type="submit"><i class="fa-solid fa-rotate-left"></i> Restituisci</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card empty"><p class="muted">Nessun prestito in questa categoria.</p></div>
+{% endif %}
+{% endblock %}

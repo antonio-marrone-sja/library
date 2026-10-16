@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Catalogo{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1>Catalogo libri</h1>
+        <p class="muted">{{ books | length }} {{ 'libro' if books | length == 1 else 'libri' }}{% if search %} per “{{ search }}”{% endif %}</p>
+    </div>
+    <a class="btn" href="{{ url_for('books.new_book') }}"><i class="fa-solid fa-plus"></i> Nuovo libro</a>
+</section>
+
+<form class="search" method="get">
+    <input type="search" name="q" value="{{ search }}" placeholder="Cerca per titolo, autore o ISBN…" aria-label="Cerca">
+    <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Cerca</button>
+    {% if search %}<a class="btn btn-secondary" href="{{ url_for('books.list_books') }}">Azzera</a>{% endif %}
+</form>
+
+{% if books %}
+    <section class="book-grid">
+        {% for book in books %}
+            <a class="book-card" href="{{ url_for('books.book_detail', book_id=book.book_id) }}">
+                <div class="cover">
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image }}" alt="Copertina di {{ book.title }}" loading="lazy" data-cover>
+                    {% endif %}
+                    <span class="cover-fallback">{{ book.title[:1] }}</span>
+                </div>
+                <div class="book-info">
+                    <h3>{{ book.title }}</h3>
+                    <p class="muted">{{ book.author }}{% if book.publication_year %} · {{ book.publication_year }}{% endif %}</p>
+                    {% if book.available_copies > 0 %}
+                        <span class="badge badge-success">{{ book.available_copies }} / {{ book.total_copies }} disponibili</span>
+                    {% elif book.total_copies > 0 %}
+                        <span class="badge badge-warning">Nessuna copia disponibile</span>
+                    {% else %}
+                        <span class="badge">Nessuna copia</span>
+                    {% endif %}
+                </div>
+            </a>
+        {% endfor %}
+    </section>
+{% else %}
+    <div class="card empty">
+        <p class="muted">Nessun libro trovato.</p>
+    </div>
+{% endif %}
+{% endblock %}
